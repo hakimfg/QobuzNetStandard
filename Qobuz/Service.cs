@@ -30,9 +30,16 @@ namespace Qobuz
             string _parameterizedURL = CreateParameterizedQuery(_url, _paramsValue);
 
             var response = client.GetAsync(_parameterizedURL);
-            string result = response.Result.Content.ReadAsStringAsync().Result;
-            User user =  JsonConvert.DeserializeObject<User>(result);
-            return user;
+            if (response.Result.IsSuccessStatusCode)
+            {
+                string result = response.Result.Content.ReadAsStringAsync().Result;
+                User user = JsonConvert.DeserializeObject<User>(result);
+                return user;
+            }
+            else
+            {
+                return null;
+            }
         }
 
         /// <summary>
@@ -40,7 +47,7 @@ namespace Qobuz
         /// </summary>
         /// <param name="searchTerm"></param>
         /// <returns></returns>
-        public List<Album> SearchAlbums(string searchTerm, int offset, int limit)
+        public List<Tracks> SearchTrack(string searchTerm, int offset, int limit)
         {
             throw new NotImplementedException();
         }
@@ -72,14 +79,14 @@ namespace Qobuz
 
         private string CreateParameterizedQuery(string url, Dictionary<string,string> parameters)
         {
-            string _paramQuery = url + "?";
+            string _paramQuery = string.Empty;
 
             foreach (var item in parameters)
             {
-                _paramQuery += ("&{0}={1}&", item.Key, item.Value);
+                _paramQuery +=  item.Key + "=" + item.Value + "&";
             }
 
-            return _paramQuery.Trim(new char[] {'&'});
+            return url + "?" + _paramQuery.TrimEnd(new char[] {'&'});
         }
     }
 }
